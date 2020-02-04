@@ -1,5 +1,5 @@
 ## `Wiki-Organizer`
-####  is a GitHub Action that automatically generates a Home.md for a GitHub wiki.
+####  is a very basic GitHub Action that automatically generates a Home.md for a GitHub wiki.
 
 Globs all possible file extensions used in a GitHub wiki: 
 `["*.md", "*.mediawiki", "*.asciidoc", "*.org","*.pod",
