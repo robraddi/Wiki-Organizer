@@ -3,30 +3,29 @@ Author: Rob Raddi
 Date: 01/16/20
 
 Description of program:
-    This program will generate a markdown file named 'Home.md' that will be
-act as the Voelz Lab wiki table of contents.
+    This program will generate a markdown file (Home.md) for a GitHub wiki.
 """
 
 import glob,os,sys
 
-class Categories(object):
+class Tags(object):
 
     def __init__(self, files, verbose=False):
         self.files = files
         self.verbose = verbose
-        self.categories = list()
+        self.tags = list()
         self.pages = list()
         self.dict = {"page": self.pages,
-                "category": self.categories}
+                "tag": self.tags}
 
-    def get_categories(self):
-        """Pull a categories and/or subcategories from a wiki files."""
+    def get_tags(self):
+        """Pull a tags and/or subtags from a wiki files."""
 
         for file in self.files:
             f = open(file, "r")
             f.seek(0)
             self.dict['page'].append(file.split("/")[-1])
-            # look at the first 5 lines to see if there's a category
+            # look at the first 5 lines to see if there's a tag
             lines = f.readlines(5)
             if "<!--" in str(lines).strip():
                 for line in lines:
@@ -37,18 +36,18 @@ class Categories(object):
                     if key in self.dict.keys():
                         self.dict[key].append(value)
             else:
-                self.dict['category'].append("Miscellaneous")
+                self.dict['tag'].append("Miscellaneous")
             f.close()
 
 
-def write_markdown(file, headers, pages):
+def write_HTML(file, headers, pages):
     """Write the new Home.md file."""
 
-    categories_ = list(dict.fromkeys(headers))
-    # Make sure that the 'None' Category is last in the list
-    if "Miscellaneous" in categories_:
-        categories_.remove("Miscellaneous")
-        categories_.append("Miscellaneous")
+    tags_ = list(dict.fromkeys(headers))
+    # Make sure that the 'None' tag is last in the list
+    if "Miscellaneous" in tags_:
+        tags_.remove("Miscellaneous")
+        tags_.append("Miscellaneous")
     contents = str()
     # 0. Add link to help page for wiki
     contents+='''<h4><a href="Wiki-Help">Wiki Help</a></h4>\n\n'''
@@ -57,18 +56,18 @@ def write_markdown(file, headers, pages):
     contents+='''<table align="center" \
             style="width:100%;margin-left:auto;margin-right:auto">\
             <tr><th>Table of Contents</th></tr>\n'''
-    for i in range(len(categories_)):
+    for i in range(len(tags_)):
         contents_header='''<tr><td><a href="#%s">%s</a></td></tr>\n'''%(
-                categories_[i].replace(" ","-").lower(), categories_[i].capitalize())
+                tags_[i].replace(" ","-").lower(), tags_[i].capitalize())
         contents += contents_header
 
     # End table and carriage return a few times
     contents += """\n</table>\n\n\n"""
 
     # 2. Create lists of files under table of contents
-    for i in range(len(categories_)):
-        contents += """<h1>%s</h1>\n<ul class="bordered">\n"""%(str(categories_[i].capitalize()))
-        pages_ = [pages[k] for k in range(len(pages)) if str(headers[k]) == str(categories_[i])]
+    for i in range(len(tags_)):
+        contents += """<h1>%s</h1>\n<ul class="bordered">\n"""%(str(tags_[i].capitalize()))
+        pages_ = [pages[k] for k in range(len(pages)) if str(headers[k]) == str(tags_[i])]
         for page in pages_:
             contents += """<li style="list-style-type:none">\
                     <a target='_blank' href='%s'>%s</a></li>\n"""%(
@@ -99,11 +98,11 @@ if __name__ == "__main__":
         try:
            files.remove(wiki+"%s"%(file))
         except: ValueError
-    C = Categories(files, testing)
-    C.get_categories()
+    C = Tags(files, testing)
+    C.get_tags()
     print("\n")
     print("Writing %s ..."%(homepage))
-    write_markdown(file=homepage, headers=C.dict['category'], pages=C.dict['page'])
+    write_HTML(file=homepage, headers=C.dict['tag'], pages=C.dict['page'])
     print("Done!")
 
 
