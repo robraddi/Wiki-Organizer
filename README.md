@@ -7,13 +7,13 @@ Globs all possible file extensions used in a GitHub wiki:
 
 ### Notes for creating a new page in the wiki:
 
-#### Example: Adding category
+#### Example: Adding a tag
 
 Add a category label inside an html comment (hidden when rendering).
 
 ```HTML
 <!--
-Category: Projects
+tag: Projects
 -->
 ```
 
