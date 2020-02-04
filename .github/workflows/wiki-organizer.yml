@@ -1,0 +1,53 @@
+# Author: Rob Raddi
+# Date: 01/17/20
+# Last Modified: 02/02/20
+
+name: "Github Wiki Organizer"
+on: gollum
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ '3.x' ]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        # Use ref if github repo is too large
+        #ref: gh-pages
+        python-version: ${{ matrix.python-version }}
+    - name: Pull wiki
+      run: |
+        git clone https://${{github.actor}}:${{secrets.GITHUB_TOKEN}}@github.com/${{github.repository}}.wiki.git
+        cd *.wiki
+        echo "File that was last commited: $(git log -n 1 --pretty='' --name-only)"
+        if [ "$(git log -n 1 --pretty='' --name-only)" == 'Home.md' ]; then
+          echo "Wiki already organized!"
+          exit 0
+        fi
+        cd ../
+    - name: Organize wiki
+      run: |
+        python Organize-Wiki.py
+    - name: git config
+      run: |
+        git config --global user.email rraddi@temple.edu
+        git config --global user.name robraddi
+    - name: Commit Home.md
+      run: |
+        cd *.wiki
+        if [ "$(git log -n 1 --pretty='' --name-only)" != 'Home.md' ]; then
+          git rm Home.md
+          git commit -m 'Removing old Home.md ...'
+          mv ../Home.md ./
+          git add Home.md
+          git commit -m 'Re-build of Wiki Table of Contents HOME.md'
+          git push https://${{github.actor}}:${{secrets.GITHUB_TOKEN}}@github.com/${{github.repository}}.wiki.git
+        fi
+    - if: success()
+      run: exit 0
+
+
+
+
+
